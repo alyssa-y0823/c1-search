@@ -86,6 +86,7 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
+    "*** YOUR CODE HERE ***"
     visited = set()
     stack = util.Stack()
     start_state = problem.getStartState()
@@ -99,10 +100,10 @@ def depthFirstSearch(problem):
             for successor, action, _ in problem.getSuccessors(state):
                 if successor not in visited:
                     stack.push((successor, path + [action]))
-    util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
+    "*** YOUR CODE HERE ***"
     visited = set()
     queue = util.Queue()
     start_state = problem.getStartState()
@@ -116,10 +117,10 @@ def breadthFirstSearch(problem):
             for successor, action, _ in problem.getSuccessors(state): # (successor, action, stepCost)
                 if successor not in visited:
                     queue.push((successor, path + [action]))
-    util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
+    "*** YOUR CODE HERE ***"
     pq = util.PriorityQueue()
     start_state = problem.getStartState()
     pq.push((start_state, []), 0)  # (state, path), priority
@@ -139,7 +140,6 @@ def uniformCostSearch(problem):
             if new_cost < best_cost.get(successor, float('inf')):
                 best_cost[successor] = new_cost
                 pq.push((successor, path + [action]), new_cost)
-    util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
     """
@@ -151,9 +151,29 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pq = util.PriorityQueue()
+    start = problem.getStartState()
+    best_g = {start: 0}
 
+    pq.push((start, []), heuristic(start, problem))
+    while not pq.isEmpty():
+        state, path = pq.pop()
+        g = best_g.get(state, 0) if path == [] and state == start else problem.getCostOfActions(path)
 
+        # goal test
+        if problem.isGoalState(state):
+            return path
+        
+        if g > best_g.get(state, float('inf')):
+            continue
+
+        for successor, action, stepCost in problem.getSuccessors(state):
+            newg = g + stepCost
+            if newg < best_g.get(successor, float('inf')):
+                best_g[successor] = newg
+                f = newg + heuristic(successor, problem)
+                pq.update((successor, path + [action]), f)
+        
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch

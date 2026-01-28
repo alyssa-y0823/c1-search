@@ -287,7 +287,15 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
+
         "*** YOUR CODE HERE ***"
+        if self.startingPosition in self.corners:
+            start_visited = (self.startingPosition,) # comma makes it a tuple (states need to be hashable)
+        else:
+            start_visited = tuple()
+
+        # start state is a pair: (position, visitedCorners)
+        self.startState = (self.startingPosition, start_visited)
 
     def getStartState(self):
         """
@@ -295,14 +303,17 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.startState
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        visitedCorners = state[1]
+        return len(visitedCorners) == 4
+        # set(visitedCorners) == set(self.corners) 
+        # also works b/c sets ignore order and duplicates
 
     def getSuccessors(self, state):
         """
@@ -325,6 +336,19 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x, y = state[0]
+            # state[0] = position, state[0] = visited corners list
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                nextPosition = (nextx, nexty)
+                # determine which corners have been visited
+                visitedCorners = list(state[1]) # create a mutable copy with list
+                if nextPosition in self.corners and nextPosition not in visitedCorners:
+                    visitedCorners.append(nextPosition) # if nextPosition is a corner, mark it visited
+                nextState = (nextPosition, tuple(visitedCorners)) # create next "state", turn into tuple
+                successors.append((nextState, action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
